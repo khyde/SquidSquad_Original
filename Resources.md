@@ -31,9 +31,9 @@
 [R Graphics Cookbook](https://r-graphics.org/)
 
 [Tidyverse](https://www.tidyverse.org/)
- -[Tidyverse Bookdown](https://bookdown.org/ansellbr/WEHI_tidyR_course_book/)
- -[Intro to tidyverse](https://rstudio-education.github.io/tidyverse-cookbook/how-to-use-this-book.html)
- -[Tidymodels](https://www.tidymodels.org/)
+ - [Tidyverse Bookdown](https://bookdown.org/ansellbr/WEHI_tidyR_course_book/)
+ - [Intro to tidyverse](https://rstudio-education.github.io/tidyverse-cookbook/how-to-use-this-book.html)
+ - [Tidymodels](https://www.tidymodels.org/)
  
  
  
