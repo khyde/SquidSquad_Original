@@ -2,7 +2,7 @@
 ## A draft repo - final versions will migrate to a perm public repo
 
 
-[Handy cheat sheet for markdown files]: (https://www.markdownguide.org/cheat-sheet/)
+Handy cheat sheet for markdown files: (https://www.markdownguide.org/cheat-sheet/)
 
 
 
