@@ -1,6 +1,6 @@
 # This is the Squid Squad Repo
 
-<img scr="https://github.com/khyde/SquidSquad/blob/main/IMAGES/SquidSquadV1.png" width="250" height="250" align="right">
+<img scr="https://github.com/khyde/SquidSquad/blob/main/IMAGES/SquidSquadV1.png" width="250" height="250" align="right" />
 
 
 
