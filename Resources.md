@@ -3,6 +3,7 @@
 ## Markdown 
 [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
 
+[Resizing images](https://imagekit.io/blog/how-to-resize-image-in-html/)
 
 ## Github
 [Git for humans](https://www.youtube.com/watch?v=eWxxfttcMts)
