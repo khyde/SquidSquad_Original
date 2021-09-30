@@ -1,8 +1,8 @@
 # This is the Squid Squad Repo
-## A draft repo - final versions will migrate to a perm public repo
+
+![graphical image of squid](https://github.com/khyde/SquidSquad/blob/main/IMAGES/SquidSquadV1.png?raw=true)
 
 
-Handy cheat sheet for markdown files: (https://www.markdownguide.org/cheat-sheet/)
 
 
 
