@@ -5,6 +5,8 @@
 
 [Resizing images](https://imagekit.io/blog/how-to-resize-image-in-html/)
 
+[Code of conduct examples](https://github.com/Openscapes/how_we_work)
+
 ## Github
 [Git for humans](https://www.youtube.com/watch?v=eWxxfttcMts)
 
