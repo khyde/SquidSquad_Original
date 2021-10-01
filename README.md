@@ -1,3 +1,5 @@
+<a align="left" href="https://github.com/Openscapes/2021-noaa-nmfs"><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="35px"></a>
+
 # This is the Squid Squad Repo
 
 <img src="https://github.com/khyde/SquidSquad/blob/main/images/SquidSquadV1.png?raw=true" width=250 height=250 align=right>
