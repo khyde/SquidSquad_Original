@@ -10,6 +10,8 @@
 
 [Version control as a concept](https://peerj.com/preprints/3159/)
 
+[Government and Github](https://github.com/Openscapes/2021-noaa-nmfs/wiki/1-GitHub-in-gov)
+
 ##### Github and R 
 [Github-R-integration](https://happygitwithr.com/)
 - *Friendly resource for git/GitHub theory, commands, workflows, troubleshooting. R/Studio focused but relevant far beyond.*
