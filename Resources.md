@@ -7,6 +7,8 @@
 
 [Code of conduct examples](https://github.com/Openscapes/how_we_work)
 
+[IDL on Markdown](https://github.com/LearnOnDemandSystems/idl-md)
+
 ## Github
 [Git for humans](https://www.youtube.com/watch?v=eWxxfttcMts)
 
