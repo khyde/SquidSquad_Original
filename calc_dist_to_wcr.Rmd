@@ -1,0 +1,363 @@
+---
+title: Calculating Warm Core Ring Metrics
+author: "Sarah Salois"
+date: "10/14/2021"
+output:  
+  github_document: default
+   html_preview: false
+    # html_document:
+    # keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Setting up your environment
+***
+> Import libraries and data 
+
+
+```{r eval = TRUE, message = FALSE}
+library('geosphere')
+library('dplyr')
+library('ggplot2')
+library('car') # function Anova
+library(patchwork)
+df <- read.csv('ring_data.csv')
+df<- df[,-1]
+```
+
+# Modify data
+***
+
+## Calculate first metric : Age of demise
+
+
+> This bit of code calculates the age of each ring in terms of weeks old 
+and days old. These new metrics are then added to the original dataframe. 
+
+```{r, echo = TRUE, eval=TRUE}
+df$id <- as.character(df$id)
+ringnames <- unique(df$id)
+# Initiate columns to add
+df$weeks_old <- NA
+df$days_old <- NA
+df$subarea <- NA # nafo
+
+for(i in 1:length(ringnames)){
+  tmp2 <- subset(df, id == ringnames[i])
+  for(j in 1:length(tmp2[,1])){
+    tmp2[j, 9] <-  (j)
+    tmp2[j, 10] <- ((tmp2[j,9]+1) - tmp2[1, 9])*7
+    locs <- which(df$id == ringnames[i])
+    df$weeks_old[locs] <- tmp2[,9]
+    df$days_old[locs] <- tmp2[,10]
+  }
+ }
+
+```
+
+
+## Subset: Focus on rings that hit shelf during the fishing season
+
+> The following lines of code subset the data based on a latitudinal and temporal range that best describes the geographical area and weeks during which fishing typically occurs. 
+
+```{r, eval=TRUE}
+shelf_rings <-  subset(df, lon <= -65.00)
+shelf_rings_fs <- subset(shelf_rings, week %in% c(18:44))
+```
+
+Examine differences in the number of rings across each of the categories
+we have just created
+
+**(i) Total number of rings:** 
+```{r, echo=FALSE, eval=TRUE}
+length(unique(df$id))
+```
+**(ii) Number of rings on shelf:** 
+
+```{r, echo=FALSE}
+length(unique(shelf_rings$id))
+```
+**(iii) Number of rings on shelf during the fishing season:**
+
+```{r, echo=FALSE}
+length(unique(shelf_rings_fs$id))
+```
+
+
+```{r, echo = FALSE}
+unq_shelf_rings_fs <- unique(shelf_rings_fs$id)
+diff = length(unique(df$id)) - length(unique(shelf_rings_fs$id))
+
+#round(length(unique(shelf_rings_fs$id))/length(unique(df$id)) * 100)
+
+```
+Rings that hit shelf represent  `r {round(length(unique(shelf_rings_fs$id))/length(unique(df$id)) * 100)}` percent of total rings. 
+*** 
+> Below is a visual representation of the number of rings that hit the shelf in the years 2011 through 2019. 
+
+The color of each bar represents the 'score' of the system state that year was ascribed via Paul Rago's (2020) analysis. 
+
+```{r, echo = FALSE, message=FALSE}
+age <-  shelf_rings_fs %>%
+  group_by(id, year, week) %>%
+  summarise(age = max(days_old)) # age of demise per year
+ring_num <-  age %>%
+  group_by(year) %>%
+  summarise(number = length(unique(id))) # age of demise per year
+ring_num$score <- c('A', 'A', 'P', 'A', 'P', 'P', 'G', 'G', 'G', NA)
+ring_num <- subset(ring_num, year %in% c(2011:2019))
+ring_num$year <-as.factor(ring_num$year)
+ggplot(ring_num, aes(x=year, y=number, fill = score)) +
+  geom_bar(stat="identity" ) +
+  xlab('Year') +
+  ylab('Number of Rings on Shelf') +
+  #scale_x_discrete(limits = years) +
+  geom_text(aes(label=year), vjust=1.6, color="white", size=3.5)+
+  theme_minimal()
+
+aov1.1 <- aov(number ~ score, data = ring_num)
+Anova(aov1.1, type = 'III')
+
+age_stats <- age %>%
+  group_by(year, week) %>%
+  summarise(mean_age = mean(age),
+            max_age = max(age),
+            min_age = min(age), 
+            sd_age = sd(age))
+age_stats$score <- NA
+aov1.2 <- aov(max_age ~ as.factor(year), data = age_stats)
+summary(aov1.2)
+Anova(aov1.2, type = 'III')
+# TukeyHSD(aov1.2)
+
+age_stats <- as.data.frame(age_stats)
+locs1 <- which(age_stats$year == 2011)
+age_stats[locs1,7] <- 'A'
+locs2 <- which(age_stats$year == 2012)
+age_stats[locs2,7] <- 'A'
+locs3 <- which(age_stats$year == 2013)
+age_stats[locs3,7] <- 'P'
+locs4 <- which(age_stats$year == 2014)
+age_stats[locs4,7] <- 'A'
+locs5 <- which(age_stats$year == 2015)
+age_stats[locs5,7] <- 'P'
+locs6 <- which(age_stats$year == 2016)
+age_stats[locs6,7] <- 'P'
+locs7 <- which(age_stats$year == 2017)
+age_stats[locs7,7] <- 'G'
+locs8 <- which(age_stats$year == 2018)
+age_stats[locs8,7] <- 'G'
+locs9 <- which(age_stats$year == 2019)
+age_stats[locs9,7] <- 'G'
+locs10 <- which(age_stats$year == 2020)
+age_stats[locs10,7] <- NA
+```
+
+Quick Anova to test differences between the maxium age of ring across system states: 
+
+```{r}
+aov1.3 <- aov(max_age ~ score, data = age_stats)
+Anova(aov1.3, type = 'III')
+```
+The variable *score* is significant (p = 0.001). Next, run a Post-hoc Tukey Honest Significant Differences test to determine between which *score* or *system state* those differences lie. The test compares all possible pairs of means.
+
+```{r}
+TukeyHSD(aov1.3)
+```
+#### Here we see which specific groups’s means (compared with each other) are different. There is a significant difference between **Good years** and **Poor years**. 
+
+# Visualize: age data 
+***
+> The following plots look at the frequency of ages of rings that hit the shelf during the fishing season 
+
+```{r echo = FALSE, message=FALSE}
+age_stats <- subset(age_stats, year %in% c(2011:2019))
+p1 <- ggplot(age_stats, aes(x = max_age, fill = score), binwidth = 40) +
+    geom_histogram(alpha = 0.5) +
+     xlab('Days Old (max)') +
+     ylab('Frequency') 
+ 
+p2  <- ggplot(age_stats, aes(x = mean_age, fill = score), binwidth = 40) +
+    geom_histogram(alpha = 0.5) +
+     xlab('Days Old (mean)') +
+     ylab('Frequency')
+
+p1 + p2+
+plot_layout(widths = c(6,6))
+
+
+```
+
+# Digging deeper
+*** 
+It is clear from the above plots that 'Good' years 
+(years with higher than average catch) are associated with a higher frequency 
+of shorter lived WCRs. More specifically, there was not a significant difference in number of rings per year (as expected re: Gangopadhyay_ea_20),  however, there appears to be a difference in the maximum age of rings in good vs bad years - with bad years having more longer lived rings. 
+
+> The next question to consider is whether this difference in age is driven by a difference in the origin (location of birth) of these rings and if these difference also show a signal of 'system state'. 
+
+Silva_ea_20 found that rings born in Zone 2 and demised in zone 1 (Z2:Z1) had 
+the highest survival probability. Additionally, WCRs last seen or demised in Zone 1 had a higher survival probability, with the exception of those also born in Zone 1 (Z1:Z1).
+
+The following figures summarize analyses to determine how many rings in general (as well as which specific rings) were born in which zone and assess how that plays into year differences.  
+
+```{r, echo = FALSE}
+
+origin <- df %>% 
+  dplyr::filter(weeks_old == 1)
+z4 <-origin %>%
+  dplyr::filter(lon > -60.000, lon < -55.000)
+z3 <-origin %>%
+  dplyr::filter(lon > -65.000, lon < -60.000)
+z2 <-origin %>%
+  dplyr::filter(lon > -70.000, lon < -65.000)
+z1 <-origin %>%
+  dplyr::filter(lon > -75.000, lon < -70.000)
+# Number of rings from each zone should sum to 281 (total rings)..
+test = sum(nrow(z4)+ nrow(z3)+ nrow(z2) + nrow(z1))
+
+# Same but in base R
+# origin <- subset(df, weeks_old == 1)
+# z4 <- subset(origin, lon >= -60.000 & lon <= -55.000)
+# z3 <- subset(origin,  lon >= -65.000 &  lon <= -60.000)
+# z2 <- subset(origin,  lon >= -70.000 &  lon <= -65.000)
+# z1 <- subset(origin, lon >= -75.000 &  lon <= -70.000)
+
+# Identify where rings that hit the shelf during the fishing season originated,
+# keeping an eye out for those that were born in zones 2 or 1 in particular. 
+origin_key <- rbind(cbind(as.character(z1$id), rep("zone1", nrow(z1))),
+                    cbind(as.character(z2$id), rep("zone2", nrow(z2))),
+                    cbind(as.character(z3$id), rep("zone3", nrow(z3))),
+                    cbind(as.character(z4$id), rep("zone4", nrow(z4))))
+colnames(origin_key) <- c("id", "origin")
+origin_key <- as.data.frame(origin_key)
+new_data <- dplyr::left_join(df,
+                             origin_key,
+                             by = "id")
+
+# ggplot(new_data, aes(x = week, fill = origin), binwidth = 40) +
+#     geom_histogram(alpha = 0.5) +
+#      xlab('Week') +
+#      ylab('Frequency') 
+
+shelf_rings <-  subset(new_data, lon <= -65.00)
+shelf_rings_fs <- subset(new_data, week %in% c(18:44))
+# ggplot(shelf_rings_fs, aes(x = week, fill = origin), binwidth = 40) +
+#     geom_histogram(alpha = 0.5) +
+#      xlab('Week') +
+#      ylab('Frequency') 
+
+shelf_rings_fs$score <- NA
+locs1 <- which(shelf_rings_fs$year == 2011)
+shelf_rings_fs[locs1,13] <- 'A'
+locs2 <- which(shelf_rings_fs$year == 2012)
+shelf_rings_fs[locs2,13] <- 'A'
+locs3 <- which(shelf_rings_fs$year == 2013)
+shelf_rings_fs[locs3,13] <- 'P'
+locs4 <- which(shelf_rings_fs$year == 2014)
+shelf_rings_fs[locs4,13] <- 'A'
+locs5 <- which(shelf_rings_fs$year == 2015)
+shelf_rings_fs[locs5,13] <- 'P'
+locs6 <- which(shelf_rings_fs$year == 2016)
+shelf_rings_fs[locs6,13] <- 'P'
+locs7 <- which(shelf_rings_fs$year == 2017)
+shelf_rings_fs[locs7,13] <- 'G'
+locs8 <- which(shelf_rings_fs$year == 2018)
+shelf_rings_fs[locs8,13] <- 'G'
+locs9 <- which(shelf_rings_fs$year == 2019)
+shelf_rings_fs[locs9,13] <- 'G'
+locs10 <- which(shelf_rings_fs$year == 2020)
+shelf_rings_fs[locs10,13] <- NA
+ 
+```
+
+As before, the color of each bar represents the 'score' of the system state that year was ascribed via Paul Rago's (2020) analysis.
+
+```{r echo = FALSE, message=FALSE} 
+a <- ggplot(shelf_rings_fs %>% dplyr::filter(score == 'G'), 
+       aes(x = week, fill = origin)) +
+  geom_histogram(alpha = 0.5) +
+  ylim(0,30) +
+  xlab('Week') +
+  ylab('Frequency') + 
+  labs(title = 'Good Years') +
+  theme(legend.position = "none")
+
+
+b <- ggplot(shelf_rings_fs %>% dplyr::filter(score == 'A'), 
+       aes(x = week, fill = origin)) +
+  geom_histogram(alpha = 0.5) +
+  ylim(0,30) +
+  xlab('Week') +
+  ylab('Frequency') + 
+  labs(title = 'Average Years') +
+  theme(legend.position = "none")
+
+
+c <- ggplot(shelf_rings_fs %>% dplyr::filter(score == 'P'), 
+       aes(x = week, fill = origin)) +
+  geom_histogram(alpha = 0.5) +
+  ylim(0,30) +
+  xlab('Week') +
+  ylab('Frequency') + 
+  labs(title = 'Poor Years') 
+
+#
+
+# a + b + c +
+# # plot_layout(ncol = 1)
+# plot_layout(widths = c(10,10,10))
+(a | b | c )
+
+
+```
+
+## Extracting data from indivdual Warm Core Rings
+
+Create polygon representing WCR in space
+
+```{r plot 1, eval = FALSE}
+for(i in 1:unq_shelf_rings_fs){
+  tmp <- subset(shelf_rings_fs, id == unq_shelf_rings_fs[i], 
+                select = c('lon','lat'))
+# plot the track of ring
+plot(makeLine(tmp), type='l',  main = paste0('WCR_ID :',unq_shelf_rings_fs[i]))
+points(tmp)
+}
+
+# Plot polygon of ring
+for(j in 1:length(years)){
+  tmp <- subset(shelf_rings_fs, year == years[j])
+  weeks = sort(unique(tmp$week))
+  for(i in 1:unq_shelf_rings_fs){
+    tmp2 <- subset(shelf_rings_fs, id == unq_shelf_rings_fs[i])
+    for(k in 1:length(weeks)){
+      tmp3 <- subset(tmp2, week == weeks[k])
+      c = circle.polygon(tmp3$lon, tmp3$lat, tmp3$radius,
+                         poly.type = "gc.earth", units = 'km')
+      maps::map("mapdata::worldHires", fill = TRUE, col = "wheat3",
+                xlim = lon.range, ylim = lat.range)
+      points(tmp3$lon, tmp3$lat, pch = 19, col = "red")
+      polygon(c1, border = "red", lwd = 3)
+      lat.lon.axes(n = 3)
+      box(lwd = 2)
+      
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
