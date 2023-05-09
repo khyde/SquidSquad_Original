@@ -3,7 +3,7 @@
 <img src="https://github.com/khyde/SquidSquad/blob/main/images/SquidSquadV1.png?raw=true" alt="graphical logo" width=200 height=200 align="right">
 
 # Squid Squad
-This repo is for the project management of the Northeast Squid Squad...
+This repo is for the project management of the Northeast Squid Squad and the investigation of environmental drivers of the Northern shortfin squid (Illex illecerosus).
 
 
 
