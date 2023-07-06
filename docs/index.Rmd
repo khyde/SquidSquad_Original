@@ -7,6 +7,7 @@ output: html_document
  
 
 <a href="https://khyde.github.io/SquidSquad/view_weekly_indicators.html" target="_blank"> 2022 Illex Indicator Viewer </a>
+
 <a href="https://khyde.github.io/SquidSquad/view_weekly_indicators_23.html" target="_blank"> 2023 Illex Indicator Viewer </a>
 
 
