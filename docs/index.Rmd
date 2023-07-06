@@ -6,7 +6,8 @@ output: html_document
 <!-- ADD LINKS BELOW, note, using the RMD link syntax will open the presentation in the same tab, which is annoying. Use the html with the "_blank" to fix that behavior -->
  
 
-<a href="https://khyde.github.io/SquidSquad/view_weekly_indicators.html" target="_blank"> Illex Indicator Viewer </a>
+<a href="https://khyde.github.io/SquidSquad/view_weekly_indicators.html" target="_blank"> 2022 Illex Indicator Viewer </a>
+<a href="https://khyde.github.io/SquidSquad/view_weekly_indicators_23.html" target="_blank"> 2023 Illex Indicator Viewer </a>
 
 
 
