@@ -2,3 +2,4 @@
 .Rproj.user
 .Rhistory
 *.tif
+.DS_Store
